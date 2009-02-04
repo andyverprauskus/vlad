@@ -49,18 +49,38 @@ namespace :vlad do
     up your symlinks, symlinks the latest revision to current and logs
     the update.".cleanup
 
+  def prepare_tarball
+    local_temp_file = '/tmp/deploy.tar'
+    File.delete(local_temp_file) if FileTest.exists?(local_temp_file)
+    git_cmd = "git archive --format=tar #{ "--remote='#{vlad_repository}'" if vlad_repository } #{revision || 'HEAD' } > #{local_temp_file}"
+    STDOUT.write git_cmd
+    STDOUT.flush
+    `#{git_cmd}`
+    STDOUT.puts "... done."
+    local_temp_file
+  end
+
   remote_task :update, :roles => :app do
     symlink = false
+    tarball = prepare_tarball
     begin
+      run "mkdir -p -m 777 #{release_path}"
+      rsync tarball, "#{scm_path}/."
+      puts "Extracting tarball..."
+      run "tar xf #{scm_path}/deploy.tar -C #{release_path}"
+
+      puts "Preparing directories..."
+
       run [ "cd #{scm_path}",
-            "#{source.checkout revision, '.'}",
-            "#{source.export ".", release_path}",
             "chmod -R g+w #{latest_release}",
             "rm -rf #{latest_release}/log #{latest_release}/public/system #{latest_release}/tmp/pids",
             "mkdir -p #{latest_release}/db #{latest_release}/tmp",
+            "mkdir -p -m 777 #{shared_path}/#{RAILS_ENV}_uploads",
             "ln -s #{shared_path}/log #{latest_release}/log",
             "ln -s #{shared_path}/system #{latest_release}/public/system",
             "ln -s #{shared_path}/pids #{latest_release}/tmp/pids",
+            "ln -nfs #{shared_path}/#{RAILS_ENV}_uploads #{release_path}/tmp/#{RAILS_ENV}_uploads",
+
           ].join(" && ")
 
       symlink = true
