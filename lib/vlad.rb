@@ -61,7 +61,7 @@ module Vlad
 
     recipes = {
       :app    => :mongrel,
-      :config => 'config/deploy.rb',
+      :config => 'config/vlad_deploy.rb',
       :core   => :core,
       :scm    => :subversion,
       :web    => :apache,
