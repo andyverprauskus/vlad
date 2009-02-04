@@ -144,7 +144,7 @@ namespace :vlad do
     version.".cleanup
 
   remote_task :rollback do
-    if releases.length < 2 then
+    if vlad_releases.length < 2 then
       abort "could not rollback the code because there is no prior release"
     else
       run "rm #{current_path}; ln -s #{previous_release} #{current_path} && rm -rf #{current_release}"
@@ -159,12 +159,12 @@ namespace :vlad do
 
   remote_task :cleanup do
     max = keep_releases
-    if releases.length <= max then
-      puts "no old releases to clean up #{releases.length} <= #{max}"
+    if vlad_releases.length <= max then
+      puts "no old releases to clean up #{vlad_releases.length} <= #{max}"
     else
-      puts "keeping #{max} of #{releases.length} deployed releases"
+      puts "keeping #{max} of #{vlad_releases.length} deployed releases"
 
-      directories = (releases - releases.last(max)).map { |release|
+      directories = (vlad_releases - vlad_releases.last(max)).map { |release|
         File.join(releases_path, release)
       }.join(" ")
 

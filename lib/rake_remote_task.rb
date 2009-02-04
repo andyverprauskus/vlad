@@ -428,12 +428,12 @@ class Rake::RemoteTask < Rake::Task
                :sudo_cmd,           "sudo",
                :sudo_flags,         nil)
 
-    set(:current_release)    { File.join(releases_path, releases[-1]) }
+    set(:current_release)    { File.join(releases_path, vlad_releases[-1]) }
     set(:latest_release)     { deploy_timestamped ?release_path: current_release }
-    set(:previous_release)   { File.join(releases_path, releases[-2]) }
+    set(:previous_release)   { File.join(releases_path, vlad_releases[-2]) }
     set(:release_name)       { Time.now.utc.strftime("%Y%m%d%H%M%S") }
     set(:release_path)       { File.join(releases_path, release_name) }
-    set(:releases)           { task.run("ls -x #{releases_path}").split.sort }
+    set(:vlad_releases)      { task.run("ls -x #{releases_path}").split.sort }
 
     set_path :current_path,  "current"
     set_path :releases_path, "releases"
